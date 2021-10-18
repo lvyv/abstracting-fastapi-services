@@ -1,18 +1,9 @@
-# Abstracting FastAPI Services
+# 设备健康模型调度器
 
-See this article for more information: <https://camillovisini.com/article/abstracting-fastapi-services/>
+1.使用pycharm ide打开根目录。
 
-## Poetry
+2.在settings中添加python3的环境（可能需要添加各种第三方包）。
 
-```bash
-poetry install
-```
+3.设置代码目录为app。
 
-## Makefile
-
-```bash
-make dev # run uvicorn with restart
-make test # run pytest
-make create-items # create items for illustration purposes
-make get-items # retrieve items for illustration purposes
-```
+4.添加一个启动项，指向tests目录的test_app.py。

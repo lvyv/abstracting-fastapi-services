@@ -1,9 +1,11 @@
+import logging
+
 from schemas.foo import FooItemCreate
 from utils.app_exceptions import AppException
-
 from services.main import AppService, AppCRUD
 from models.foo import FooItem
 from utils.service_result import ServiceResult
+import httpx
 
 
 class FooService(AppService):
@@ -20,6 +22,13 @@ class FooService(AppService):
         if not foo_item.public:
             return ServiceResult(AppException.FooItemRequiresAuth())
         return ServiceResult(foo_item)
+
+    async def phm_call(self, item_id: str) -> ServiceResult:
+        dev_type = 'pump'
+        async with httpx.AsyncClient(timeout=None) as client:
+            r = await client.post(f'http://127.0.0.1:29082/api/v1/soh/{dev_type}?dev_id={item_id}')
+            logging.debug(r)
+            return ServiceResult(r.content)
 
 
 class FooCRUD(AppCRUD):

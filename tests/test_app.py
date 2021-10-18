@@ -31,7 +31,7 @@ unit test module
 
 import unittest
 import uvicorn
-from app.main import app as app_
+# from app.main import app as app_
 from app import __version__
 
 
@@ -41,10 +41,10 @@ def test_version():
 
 class TestMain(unittest.TestCase):
     """
-    Tests for `v2v` entrypoint.
-    本测试案例启动整个v2v程序（前提需要启动Mock提供仿真接口，并启动obs的rtsp服务器）
+    Tests for `健康模型构件` entrypoint.
+    本测试案例启动整个健康模型构件（可以在数据资源集成分系统的算法开发软件中部署的模型协同工作）
     访问运行本案例的URL：
-    https://IP:29080/docs，执行POST /subprocess，发送start/stop命令启停视频识别流水线。
+    https://IP:29081/docs，执行POST /subprocess，发送start/stop命令启停视频识别流水线。
     注意
     """
     def setUp(self):
@@ -55,9 +55,12 @@ class TestMain(unittest.TestCase):
 
     def test_MainContext(self):
         """Test core.main.MainContext."""
-        uvicorn.run(app_,  # noqa 标准用法
+        uvicorn.run('app.main:app',  # noqa 标准用法
                 host="0.0.0.0",
-                port=8081)
+                port=29081,
+                reload=True,
+                workers=3
+                )
 
 
 if __name__ == "__main__":

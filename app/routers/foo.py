@@ -16,7 +16,8 @@ router = APIRouter(
 
 @router.post("/item/", response_model=FooItem)
 async def create_item(item: FooItemCreate, db: get_db = Depends()):
-    result = FooService(db).create_item(item)
+    foos = FooService(db)
+    result = foos.create_item(item)
     return handle_result(result)
 
 
@@ -24,3 +25,11 @@ async def create_item(item: FooItemCreate, db: get_db = Depends()):
 async def get_item(item_id: int, db: get_db = Depends()):
     result = FooService(db).get_item(item_id)
     return handle_result(result)
+
+
+@router.post("/phm/")
+async def call_phm(db: get_db = Depends()):
+    foos = FooService(db)
+    res = await foos.phm_call('123')
+    # res2 = {'id': 3, 'success': True}
+    return handle_result(res)
