@@ -58,7 +58,9 @@ class TestMain(unittest.TestCase):
         uvicorn.run('app.main:app',  # noqa 标准用法
                 host="0.0.0.0",
                 port=29081,
-                reload=True,
+                ssl_keyfile="cert.key",
+                ssl_certfile="cert.cer",
+                log_level='info',
                 workers=3
                 )
 

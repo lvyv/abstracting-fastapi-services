@@ -36,6 +36,7 @@ from random import randint
 from time import sleep
 import uvicorn
 import concurrent.futures
+import httpx
 
 app = FastAPI()
 
@@ -52,23 +53,22 @@ app.add_middleware(
 # IF11:REST MODEL 外部接口-phmMD与phmMS之间仿真接口
 
 
+def waitfor_seconds(reqid):
+    print(reqid)
+    sleep(5)
+    with httpx.Client(timeout=None, verify=False) as client:
+        r = client.put(f'https://127.0.0.1:29081/foo/item/?reqid={reqid}&res={"threading end result."}')
+    return 0
+
+
 # time intensive tasks
 @app.post("/api/v1/soh/{device_type}")
-async def calculate_soh(device_type: str, dev_id: str):
+async def calculate_soh(device_type: str, dev_id: str, reqid: str):
     """模拟耗时的机器学习任务"""
     duration = randint(5, 10)
     # sleep(duration)   # will sleep 5 ~ 10 seconds
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = {executor.submit(load_url, url, 60): url for url in URLS}
-        for future in concurrent.futures.as_completed(future_to_url):
-            url = future_to_url[future]
-        try:
-            data = future.result()
-        except Exception as exc:
-            print('%r generated an exception: %s' % (url, exc))
-        else:
-            print('%r page is %d bytes' % (url, len(data)))
-    sleep(5)
+        executor.submit(waitfor_seconds, reqid)
     return {'public': True, 'id': 21, 'description': f'{duration}'}
 
 
@@ -76,5 +76,7 @@ if __name__ == '__main__':
     uvicorn.run('mock:app',                # noqa
                 host="0.0.0.0",
                 port=29082,
+                ssl_keyfile="cert.key",
+                ssl_certfile="cert.cer",
                 workers=3
                 )
