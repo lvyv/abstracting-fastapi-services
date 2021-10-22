@@ -25,6 +25,10 @@ battery controller layer
 
 controller层，负责路由分发.
 """
+
+# Author: Awen <26896225@qq.com>
+# License: MIT
+
 from fastapi import APIRouter, Depends
 
 from services.foo import FooService
@@ -35,7 +39,7 @@ from utils.service_result import handle_result
 from config.database import get_db
 
 router = APIRouter(
-    prefix="/battery",
+    prefix="/api/v1/phm/battery",
     tags=["电池模型"],
     responses={404: {"description": "Not found"}},
 )
