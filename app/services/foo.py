@@ -3,7 +3,7 @@ import logging
 from schemas.foo import FooItemCreate
 from utils.app_exceptions import AppException
 from services.main import AppService, AppCRUD
-from models.foo import FooItem
+from models.tables import FooItem
 from utils.service_result import ServiceResult
 import httpx
 
@@ -61,4 +61,4 @@ class FooCRUD(AppCRUD):
         foo_item = self.db.query(FooItem).filter(FooItem.id == item_id).first()
         if foo_item:
             return foo_item
-        return None
+        return None     # noqa

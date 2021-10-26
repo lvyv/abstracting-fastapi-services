@@ -28,7 +28,7 @@ entrypoint of the app
 from utils.app_exceptions import AppExceptionCase
 from fastapi import FastAPI
 
-from routers import foo, battery
+from routers import battery, reqhistory
 from config.database import create_tables
 
 from fastapi.exceptions import RequestValidationError
@@ -61,7 +61,7 @@ async def custom_app_exception_handler(request, e):
     return await app_exception_handler(request, e)
 
 
-app.include_router(foo.router)
+app.include_router(reqhistory.router)
 app.include_router(battery.router)
 
 

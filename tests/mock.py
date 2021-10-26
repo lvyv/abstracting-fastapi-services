@@ -50,14 +50,16 @@ app.add_middleware(
     allow_headers=['*']
 )
 
+# 线程池初始化
+executor_ = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+
+
 # IF11:REST MODEL 外部接口-phmMD与phmMS之间仿真接口
-
-
 def waitfor_seconds(reqid):
     print(reqid)
     sleep(5)
     with httpx.Client(timeout=None, verify=False) as client:
-        r = client.put(f'https://127.0.0.1:29081/foo/item/?reqid={reqid}&res={"threading end result."}')
+        r = client.put(f'https://127.0.0.1:29081/api/v1/reqhistory/item/?reqid={reqid}&res={"threading end result."}')
     return 0
 
 
@@ -65,11 +67,13 @@ def waitfor_seconds(reqid):
 @app.post("/api/v1/soh/{device_type}")
 async def calculate_soh(device_type: str, dev_id: str, reqid: str):
     """模拟耗时的机器学习任务"""
-    duration = randint(5, 10)
+    # duration = randint(5, 10)
     # sleep(duration)   # will sleep 5 ~ 10 seconds
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        executor.submit(waitfor_seconds, reqid)
-    return {'public': True, 'id': 21, 'description': f'{duration}'}
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    #     executor.submit(waitfor_seconds, reqid)
+
+    executor_.submit(waitfor_seconds, reqid)
+    return {'task': reqid, 'status': 'submitted to work thread.'}
 
 
 if __name__ == '__main__':

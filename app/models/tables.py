@@ -30,7 +30,6 @@ table data model module
 # License: MIT
 
 from sqlalchemy import Boolean, Column, Integer, String
-
 from config.database import Base
 
 
@@ -42,11 +41,16 @@ class FooItem(Base):
     public = Column(Boolean, default=False)
 
 
-class ReqItem(Base):
+class ReqDao(Base):
     """
     在phmMS收到REST调用时，创建一条记录，保存该异步请求，之后调用phmMD。
     在phmMD被调用启动的工作线程完成耗时计算后，反向回调phmMS，保存原来异步请求的执行结果。
-    该表主要有三个字段：id记录请求号，每次调用都是唯一的；status是该请求的执行状态；result是请求执行的结果。
+    该表主要字段：
+        id: 记录请求号，每次调用都是唯一的；
+        model: 记录请求是针对哪个模型；
+        status: 该请求的执行状态；
+        result: 请求执行的结果。
+
     Attributes
     ----------
 
@@ -54,8 +58,11 @@ class ReqItem(Base):
     -------
 
     """
-    __tablename__ = "req_items"
+    __tablename__ = "req_history"
 
     id = Column(Integer, primary_key=True, index=True)
+    model = Column(String)
     status = Column(String)
     result = Column(String)
+    requestts = Column(Integer)
+    settledts = Column(Integer)
