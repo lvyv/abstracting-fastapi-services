@@ -30,7 +30,7 @@ business logic层，负责实现客户端请求的结果入库和查询。
 # License: MIT
 
 from services.main import AppService
-from services.dao_reqhistory import RequestHistoryCRUD
+from models.dao_reqhistory import RequestHistoryCRUD
 from utils.service_result import ServiceResult
 # from utils.app_exceptions import AppException
 

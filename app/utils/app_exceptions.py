@@ -49,3 +49,11 @@ class AppException(object):
             """
             status_code = 401
             AppExceptionCase.__init__(self, status_code, context)
+
+    class HttpRequestTimeout(AppExceptionCase):
+        def __init__(self, context: dict = None):
+            """
+            Http request timeout
+            """
+            status_code = 504
+            AppExceptionCase.__init__(self, status_code, context)

@@ -31,7 +31,7 @@ controller层，负责模型回调路由分发.
 
 from fastapi import APIRouter, Depends
 from services.reqhistory import ReqHistoryService
-from schemas.foo import FooItem
+# from schemas.foo import FooItem
 from utils.service_result import handle_result
 from config.database import get_db
 

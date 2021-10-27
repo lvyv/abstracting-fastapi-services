@@ -33,11 +33,11 @@ data access层，负责处理电池模型调用的历史记录。
 import logging
 import httpx
 import time
-# from utils.app_exceptions import AppException
 from schemas.reqhistory import ReqItemCreate
 from services.main import AppService
-from services.dao_reqhistory import RequestHistoryCRUD
+from models.dao_reqhistory import RequestHistoryCRUD
 from utils.service_result import ServiceResult
+from utils.app_exceptions import AppException
 from config import constants as ct
 
 
@@ -55,7 +55,10 @@ class BatteryService(AppService):
         }
         item = ReqItemCreate(**external_data)
         soh_item = RequestHistoryCRUD(self.db).create_record(item)
-        async with httpx.AsyncClient(timeout=None, verify=False) as client:
-            r = await client.post(f'{ct.AIURL_SOH}{dev_type}?dev_id={dev_id}&reqid={soh_item.id}')
-            logging.debug(r)
-            return ServiceResult(r.content)
+        try:
+            async with httpx.AsyncClient(timeout=ct.REST_REQUEST_TIMEOUT, verify=False) as client:
+                r = await client.post(f'{ct.AIURL_SOH}{dev_type}?dev_id={dev_id}&reqid={soh_item.id}')
+                logging.debug(r)
+                return ServiceResult(r.content)
+        except httpx.ConnectTimeout:
+            return ServiceResult(AppException.HttpRequestTimeout())
