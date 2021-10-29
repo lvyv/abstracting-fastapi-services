@@ -66,3 +66,4 @@ class ReqDao(Base):
     result = Column(String)
     requestts = Column(Integer)
     settledts = Column(Integer)
+    memo = Column(String, default='')

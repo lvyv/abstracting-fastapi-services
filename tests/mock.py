@@ -30,14 +30,16 @@ mock module
 # Author: Awen <26896225@qq.com>
 # License: MIT
 
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from random import randint
+# from random import randint
 from time import sleep
 import uvicorn
 import concurrent.futures
 import httpx
 
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 app = FastAPI()
 
 # 支持跨越
@@ -56,10 +58,11 @@ executor_ = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
 # IF11:REST MODEL 外部接口-phmMD与phmMS之间仿真接口
 def waitfor_seconds(reqid):
-    print(reqid)
+    logging.info(reqid)
     sleep(5)
     with httpx.Client(timeout=None, verify=False) as client:
         r = client.put(f'https://127.0.0.1:29081/api/v1/reqhistory/item/?reqid={reqid}&res={"threading end result."}')
+        logging.info(r)
     return 0
 
 
@@ -70,7 +73,7 @@ async def calculate_soh(device_type: str, dev_id: str, reqid: str):
     # duration = randint(5, 10)
     # sleep(duration)   # will sleep 5 ~ 10 seconds
     # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-    #     executor.submit(waitfor_seconds, reqid)
+    #     executor.submit(waitfor_sec5onds, reqid)
 
     executor_.submit(waitfor_seconds, reqid)
     return {'task': reqid, 'status': 'submitted to work thread.'}
@@ -82,5 +85,5 @@ if __name__ == '__main__':
                 port=29082,
                 ssl_keyfile="cert.key",
                 ssl_certfile="cert.cer",
-                workers=3
+                workers=9
                 )

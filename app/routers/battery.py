@@ -45,11 +45,11 @@ router = APIRouter(
 
 # 电池健康模型的前端接口，该层接口可以实现模型与调用方解耦，并添加负载均衡等扩展功能。
 @router.post("/soh/{device_id}")
-async def call_soh(dev_id: str, db: get_db = Depends()):
+async def call_soh(device_id: str, db: get_db = Depends()):
     """
     健康评估模型
 
-    :param dev_id: 设备标识。
+    :param device_id: 设备标识。
     :type: string。
     :param db: 数据库连接。
     :type: sqlalchemy.orm.sessionmaker。
@@ -57,7 +57,7 @@ async def call_soh(dev_id: str, db: get_db = Depends()):
     :rtype:
     """
     bs = BatteryService(db)
-    res = await bs.soh(dev_id)
+    res = await bs.soh(device_id)
     # res2 = {'id': 3, 'success': True}
     return handle_result(res)
 

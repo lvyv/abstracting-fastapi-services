@@ -51,7 +51,8 @@ class BatteryService(AppService):
             'model': dev_type,
             'status': ct.REQ_STATUS_PENDING,
             'result': ct.REQ_STATUS_PENDING,
-            'requestts': int(time.time() * 1000)
+            'requestts': int(time.time() * 1000),
+            'memo': dev_id
         }
         item = ReqItemCreate(**external_data)
         soh_item = RequestHistoryCRUD(self.db).create_record(item)

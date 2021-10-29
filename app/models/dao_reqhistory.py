@@ -44,7 +44,8 @@ class RequestHistoryCRUD(AppCRUD):
         reqdao = ReqDao(model=item.model,
                         status=item.status,
                         result=item.result,
-                        requestts=item.requestts)
+                        requestts=item.requestts,
+                        memo=item.memo)
         self.db.add(reqdao)
         self.db.commit()
         self.db.refresh(reqdao)
