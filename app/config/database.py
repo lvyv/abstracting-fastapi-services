@@ -14,8 +14,6 @@ SessionLocal = sessionmaker(
     bind=engine,
 )
 
-Base = declarative_base()
-
 
 def get_db():
     db = SessionLocal()
@@ -25,5 +23,9 @@ def get_db():
         db.close()
 
 
-def create_tables():
+Base = declarative_base()
+
+
+def create_tables() -> dict:
     Base.metadata.create_all(bind=engine)
+    return list(Base.metadata.tables.keys())

@@ -30,11 +30,10 @@ controller层，负责电池模型调用路由分发.
 # License: MIT
 
 from fastapi import APIRouter, Depends
-# from services.foo import FooService
 from services.battery import BatteryService
-# from schemas.foo import FooItem, FooItemCreate
 from utils.service_result import handle_result
 from config.database import get_db
+import logging
 
 router = APIRouter(
     prefix="/api/v1/phm/battery",
@@ -80,6 +79,7 @@ async def call_opmode(device_id: str, sts: int, dts: int, taglist: str, db: get_
     :return:
     :rtype:  ServiceResult
     """
+    logging.info(f'{sts}{dts}{taglist}')
     bs = BatteryService(db)
     res = await bs.soh(device_id)
     return handle_result(res)

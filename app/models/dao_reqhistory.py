@@ -31,7 +31,7 @@ data access层，负责处理模型调用的历史记录。
 
 import time
 from services.main import AppCRUD
-from models.tables import ReqDao
+from models.tables import TReqHistory
 from schemas.reqhistory import ReqItemCreate
 from config import constants as ct
 
@@ -40,27 +40,27 @@ class RequestHistoryCRUD(AppCRUD):
     """
     电池模型请求数据访问。
     """
-    def create_record(self, item: ReqItemCreate) -> ReqDao:
-        reqdao = ReqDao(model=item.model,
-                        status=item.status,
-                        result=item.result,
-                        requestts=item.requestts,
-                        memo=item.memo)
+    def create_record(self, item: ReqItemCreate) -> TReqHistory:
+        reqdao = TReqHistory(model=item.model,
+                             status=item.status,
+                             result=item.result,
+                             requestts=item.requestts,
+                             memo=item.memo)
         self.db.add(reqdao)
         self.db.commit()
         self.db.refresh(reqdao)
         return reqdao
 
-    def update_record(self, reqid, result) -> ReqDao:
-        reqdao = self.db.query(ReqDao).filter(ReqDao.id == reqid).first()
+    def update_record(self, reqid, result) -> TReqHistory:
+        reqdao = self.db.query(TReqHistory).filter(TReqHistory.id == reqid).first()
         reqdao.status = ct.REQ_STATUS_SETTLED
         reqdao.result = result
         reqdao.settledts = int(time.time() * 1000)
         self.db.commit()
         return reqdao
 
-    def get_record(self, reqid: int) -> ReqDao:
-        reqdao = self.db.query(ReqDao).filter(ReqDao.id == reqid).first()
+    def get_record(self, reqid: int) -> TReqHistory:
+        reqdao = self.db.query(TReqHistory).filter(TReqHistory.id == reqid).first()
         if reqdao:
             return reqdao
         return None     # noqa

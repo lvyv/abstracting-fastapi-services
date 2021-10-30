@@ -25,25 +25,23 @@ entrypoint of the app
 
 三层架构应用程序的主入口.
 """
+
 from utils.app_exceptions import AppExceptionCase
 from fastapi import FastAPI
-
 from routers import battery, reqhistory
-from config.database import create_tables
-
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
 from utils.request_exceptions import (
     http_exception_handler,
     request_validation_exception_handler,
 )
 from utils.app_exceptions import app_exception_handler
-
-create_tables()
-
+import threading
+import models.tables as tb
+import logging
 
 app = FastAPI()
+logging.info(f'Worker Thread: {threading.current_thread().ident:6}     tables {tb.TABLES}.')
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -63,8 +61,3 @@ async def custom_app_exception_handler(request, e):
 
 app.include_router(reqhistory.router)
 app.include_router(battery.router)
-
-
-# @app.get("/")
-# async def root():
-#     return {"message": "Hello World"}

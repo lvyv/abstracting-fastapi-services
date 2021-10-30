@@ -29,19 +29,11 @@ table data model module
 # Author: Awen <26896225@qq.com>
 # License: MIT
 
-from sqlalchemy import Boolean, Column, Integer, String
-from config.database import Base
+from sqlalchemy import Column, Integer, String
+from config.database import Base, create_tables
 
 
-class FooItem(Base):
-    __tablename__ = "foo_items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    description = Column(String)
-    public = Column(Boolean, default=False)
-
-
-class ReqDao(Base):
+class TReqHistory(Base):
     """
     在phmMS收到REST调用时，创建一条记录，保存该异步请求，之后调用phmMD。
     在phmMD被调用启动的工作线程完成耗时计算后，反向回调phmMS，保存原来异步请求的执行结果。
@@ -50,7 +42,9 @@ class ReqDao(Base):
         model: 记录请求是针对哪个模型；
         status: 该请求的执行状态；
         result: 请求执行的结果。
-
+        requestts: 客户端调用的时间戳。
+        settledts: Ai模型执行完成的时间戳。
+        memo: 放设备id。
     Attributes
     ----------
 
@@ -67,3 +61,29 @@ class ReqDao(Base):
     requestts = Column(Integer)
     settledts = Column(Integer)
     memo = Column(String, default='')
+
+
+class TApiToken(Base):
+    """
+    令牌表，暂存api访问令牌，便于使用。
+    该表主要字段：
+        id: 记录权限Token；
+        url: api的原型，https://ip:port/api/v1/phm/{soh}；
+        tk: 该api的访问令牌。
+
+    Attributes
+    ----------
+
+    Methods
+    -------
+
+    """
+    __tablename__ = "api_token"
+
+    id = Column(Integer, primary_key=True, index=True)
+    url = Column(String)
+    tk = Column(String)
+
+
+# create all tables
+TABLES = create_tables()

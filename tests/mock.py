@@ -74,7 +74,7 @@ async def calculate_soh(device_type: str, dev_id: str, reqid: str):
     # sleep(duration)   # will sleep 5 ~ 10 seconds
     # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
     #     executor.submit(waitfor_sec5onds, reqid)
-
+    logging.info(f'{device_type},{dev_id}')
     executor_.submit(waitfor_seconds, reqid)
     return {'task': reqid, 'status': 'submitted to work thread.'}
 

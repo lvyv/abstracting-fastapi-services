@@ -31,8 +31,14 @@ unit test module
 
 import unittest
 import uvicorn
-# from app.main import app as app_
 from app import __version__
+import models.tables as tb
+import config.constants as ct
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(levelname)s: %(asctime)s %(filename)s %(message)s',
+                    datefmt='%a %d %b %Y %H:%M:%S')
 
 
 def test_version():
@@ -53,14 +59,17 @@ class TestMain(unittest.TestCase):
     def tearDown(self):
         """Tear down test fixtures, if any."""
 
-    def test_MainContext(self):
-        """Test core.main.MainContext."""
+    def test_Main(self):
+        """Test app.main:app"""
+        logging.info(f'********************  CASICLOUD AI METER services  ********************')
+        logging.info(f'phmMS tables were created by import statement {tb.TABLES}.')
+        logging.info(f'phmMS micro service starting at {ct.PHMMS_HOST}: {ct.PHMMS_PORT}')
         uvicorn.run('app.main:app',  # noqa 标准用法
-                host="0.0.0.0",
-                port=29081,
-                ssl_keyfile="cert.key",
-                ssl_certfile="cert.cer",
-                log_level='info',
+                host=ct.PHMMS_HOST,
+                port=ct.PHMMS_PORT,
+                ssl_keyfile=ct.PHMMS_KEY,
+                ssl_certfile=ct.PHMMS_CER,
+                log_level='warning',
                 workers=3
                 )
 
