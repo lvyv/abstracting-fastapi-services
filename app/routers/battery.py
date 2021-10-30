@@ -31,8 +31,12 @@ controller层，负责电池模型调用路由分发.
 
 from fastapi import APIRouter, Depends
 from services.battery import BatteryService
-from utils.service_result import handle_result
+from utils.service_result import handle_result, ServiceResult
+from utils.app_exceptions import AppException
 from config.database import get_db
+from pydantic import BaseModel
+
+import json
 import logging
 
 router = APIRouter(
@@ -43,24 +47,36 @@ router = APIRouter(
 
 
 # 电池健康模型的前端接口，该层接口可以实现模型与调用方解耦，并添加负载均衡等扩展功能。
-@router.post("/soh/{device_id}")
-async def call_soh(device_id: str, db: get_db = Depends()):
+
+# 1.健康评估模型，即根据输入设备的MVs，定义和解算SOH。
+class SohInputParams(BaseModel):
+    devices: str = '[]'     # json string
+    tags: str = '[]'        # json string
+    startts: int            # timestamp ms
+    duration: int           # ms
+
+
+@router.post("/soh")
+async def call_soh(sohin: SohInputParams, db: get_db = Depends()):
     """
     健康评估模型
 
-    :param device_id: 设备标识。
-    :type: string。
+    :param sohin: 计算设备的soh需要的参数。
+    :type: SohInputParams。
     :param db: 数据库连接。
     :type: sqlalchemy.orm.sessionmaker。
     :return:
     :rtype:
     """
-    bs = BatteryService(db)
-    res = await bs.soh(device_id)
-    # res2 = {'id': 3, 'success': True}
+    try:
+        bs = BatteryService(db)
+        res = await bs.soh(json.loads(sohin.devices), json.loads(sohin.tags), sohin.startts, sohin.duration)
+    except json.decoder.JSONDecodeError:
+        res = ServiceResult(AppException.HttpRequestParamsIllegal())
     return handle_result(res)
 
 
+# 2.工况判别模型，即主要利用聚类方法实现MVs的聚类分析。
 @router.post("/opmode/{device_id}")
 async def call_opmode(device_id: str, sts: int, dts: int, taglist: str, db: get_db = Depends()):
     """
@@ -83,23 +99,3 @@ async def call_opmode(device_id: str, sts: int, dts: int, taglist: str, db: get_
     bs = BatteryService(db)
     res = await bs.soh(device_id)
     return handle_result(res)
-
-
-# @router.post("/item/", response_model=FooItem)
-# async def create_item(item: FooItemCreate, db: get_db = Depends()):
-#     foos = FooService(db)
-#     result = foos.create_item(item)
-#     return handle_result(result)
-
-
-# @router.put("/item/")
-# async def update_item(reqid: str, res: str, db: get_db = Depends()):
-#     foos = FooService(db)
-#     result = foos.update_item(reqid, res)
-#     return handle_result(result)
-#
-#
-# @router.get("/item/{item_id}", response_model=FooItem)
-# async def get_item(item_id: int, db: get_db = Depends()):
-#     result = FooService(db).get_item(item_id)
-#     return handle_result(result)

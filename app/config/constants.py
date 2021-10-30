@@ -45,7 +45,7 @@ REQ_STATUS_SETTLED = 'settled'
 REST_REQUEST_TIMEOUT = 1
 
 # 后台ai模型的地址
-AIURL_SOH = 'https://127.0.0.1:29082/api/v1/soh/'
+AIURL_SOH = 'https://127.0.0.1:29082/api/v1/soh'
 
 # phmMS启动的地址、端口、证书等
 PHMMS_HOST = '0.0.0.0'

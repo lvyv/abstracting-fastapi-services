@@ -30,19 +30,19 @@ mock module
 # Author: Awen <26896225@qq.com>
 # License: MIT
 
-import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# from random import randint
+from pydantic import BaseModel
 from time import sleep
 import uvicorn
 import concurrent.futures
 import httpx
+import logging
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 app = FastAPI()
 
-# 支持跨越
+# 支持跨域
 origins = ['*']
 app.add_middleware(
     CORSMiddleware,
@@ -57,8 +57,8 @@ executor_ = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
 
 # IF11:REST MODEL 外部接口-phmMD与phmMS之间仿真接口
-def waitfor_seconds(reqid):
-    logging.info(reqid)
+def computationally_intensive(sohin, reqid):
+    logging.info(f'{sohin}, {reqid}')
     sleep(5)
     with httpx.Client(timeout=None, verify=False) as client:
         r = client.put(f'https://127.0.0.1:29081/api/v1/reqhistory/item/?reqid={reqid}&res={"threading end result."}')
@@ -67,15 +67,17 @@ def waitfor_seconds(reqid):
 
 
 # time intensive tasks
-@app.post("/api/v1/soh/{device_type}")
-async def calculate_soh(device_type: str, dev_id: str, reqid: str):
+class SohInputParams(BaseModel):
+    devices: str = '[]'     # json string
+    tags: str = '[]'        # json string
+    startts: int            # timestamp ms
+    duration: int           # ms
+
+
+@app.post("/api/v1/soh")
+async def calculate_soh(sohin: SohInputParams, reqid: int):
     """模拟耗时的机器学习任务"""
-    # duration = randint(5, 10)
-    # sleep(duration)   # will sleep 5 ~ 10 seconds
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-    #     executor.submit(waitfor_sec5onds, reqid)
-    logging.info(f'{device_type},{dev_id}')
-    executor_.submit(waitfor_seconds, reqid)
+    executor_.submit(computationally_intensive, sohin, reqid)
     return {'task': reqid, 'status': 'submitted to work thread.'}
 
 
@@ -85,5 +87,5 @@ if __name__ == '__main__':
                 port=29082,
                 ssl_keyfile="cert.key",
                 ssl_certfile="cert.cer",
-                workers=9
+                workers=3
                 )

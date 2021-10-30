@@ -33,6 +33,7 @@ from fastapi import APIRouter, Depends
 from services.reqhistory import ReqHistoryService
 from utils.service_result import handle_result
 from config.database import get_db
+import logging
 
 router = APIRouter(
     prefix="/api/v1/reqhistory",
@@ -45,6 +46,7 @@ router = APIRouter(
 async def update_item(reqid: str, res: str, db: get_db = Depends()):
     reqs = ReqHistoryService(db)
     result = reqs.update_item(reqid, res)
+    logging.info(f'the submitted task:{reqid} got result - {res} ')
     return handle_result(result)
 
 

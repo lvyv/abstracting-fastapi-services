@@ -24,7 +24,6 @@ business logic layer
 =========================
 
 business logic层，负责实现电池模型的业务模型。
-data access层，负责处理电池模型调用的历史记录。
 """
 
 # Author: Awen <26896225@qq.com>
@@ -33,6 +32,7 @@ data access层，负责处理电池模型调用的历史记录。
 import logging
 import httpx
 import time
+import json
 from schemas.reqhistory import ReqItemCreate
 from services.main import AppService
 from models.dao_reqhistory import RequestHistoryCRUD
@@ -45,20 +45,27 @@ class BatteryService(AppService):
     """
     电池模型业务逻辑服务。
     """
-    async def soh(self, dev_id: str) -> ServiceResult:
+    async def soh(self, devs: list, tags: list, startts: int, duration: int) -> ServiceResult:
         dev_type = ct.DEV_BATTERY
         external_data = {
             'model': dev_type,
             'status': ct.REQ_STATUS_PENDING,
             'result': ct.REQ_STATUS_PENDING,
             'requestts': int(time.time() * 1000),
-            'memo': dev_id
+            'memo': json.dumps(devs)
         }
         item = ReqItemCreate(**external_data)
         soh_item = RequestHistoryCRUD(self.db).create_record(item)
         try:
             async with httpx.AsyncClient(timeout=ct.REST_REQUEST_TIMEOUT, verify=False) as client:
-                r = await client.post(f'{ct.AIURL_SOH}{dev_type}?dev_id={dev_id}&reqid={soh_item.id}')
+                payload = {
+                    "devices": json.dumps(devs),
+                    "tags": json.dumps(tags),
+                    "startts": startts,
+                    "duration": duration
+                }
+                params = {"reqid": soh_item.id}
+                r = await client.post(f'{ct.AIURL_SOH}', json=payload, params=params)
                 logging.debug(r)
                 return ServiceResult(r.content)
         except httpx.ConnectTimeout:
